@@ -4,11 +4,10 @@ import argparse
 import subprocess
 import tarfile
 import urllib.request
+
 from pygments.lexers import make
 import os
-
-
-
+from os import path
 
 
 ###########################################################
@@ -42,15 +41,28 @@ def parser():
 def download_kernel(args):
         url = "https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-" + args + ".tar.xz" 
         downloaded_filename = args + '.tar.xz'
-        urllib.request.urlretrieve(url, downloaded_filename)
+        if not (path.exists(downloaded_filename)) :
+            print(f"{downloaded_filename} is downloading.\n")
+            urllib.request.urlretrieve(url, downloaded_filename)
+        else :
+            print(f"{downloaded_filename} already downladed.")
 
-        fname = args + '.tar.xz' 
-
-        if fname.endswith("tar.xz"):
+        dir_name = "linux-"+args
+        if not(path.exists(dir_name)):
+            fname = args + '.tar.xz'
             tar = tarfile.open(fname, "r:xz")
+            print(f"Extracting {fname}.")
             tar.extractall()
             tar.close()
-            subprocess.call("mv linux-"+args+ " kernel", shell = True)
+            print(f"{fname} has been extracted into {dir_name}")
+        else :
+            print(f"{dir_name} has been already extracted.")
+
+        if (path.exists("kernel")) :
+            subprocess.call("rm -r -f kernel")
+
+        subprocess.call(f"mv {dir_name} kernel", shell=True)
+
 
 #The function that will build the kernel with the .config or a randconfig
 #suppos that you  have already do the step 0, step1 and step2 of the how to build kernel with kernel_ci
@@ -92,3 +104,7 @@ if __name__ == "__main__":
 #marker 5 done(on lance le build du kernel)
 
 #reste a prendre les outputs
+
+#supprimer les fichiers ajoutés
+#    subprocess.call('rm -r -f ./kernel', shell=True)
+#    subprocess.call('rm -f -r ./build', shell=True)
