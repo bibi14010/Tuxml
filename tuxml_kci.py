@@ -59,9 +59,9 @@ def download_kernel(args):
             print(f"{dir_name} has been already extracted.")
 
         if (path.exists("kernel")) :
-            subprocess.call("rm -r -f kernel")
+            subprocess.call("rm -r -f ./kernel",shell=Tr)
 
-        subprocess.call(f"mv {dir_name} kernel", shell=True)
+        subprocess.call(f"mv {dir_name} ./kernel", shell=True)
 
 
 #The function that will build the kernel with the .config or a randconfig
@@ -83,7 +83,9 @@ if __name__ == "__main__":
     if kv is not None:
         download_kernel(kv)
 #marker 2 done (telecharger et decompresser mon archive kernel dans mon path courant)
-
+    #clean the build folder
+    if path.exists("build") :
+        subprocess.call("rm -r -f build",shell=True)
     subprocess.call('mkdir build', shell=True)
 
     if config == 'randconfig':
