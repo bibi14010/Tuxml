@@ -59,7 +59,7 @@ def download_kernel(args):
             print(f"{dir_name} has been already extracted.")
 
         if (path.exists("kernel")) :
-            subprocess.call("rm -r -f ./kernel",shell=Tr)
+            subprocess.call("rm -r -f ./kernel",shell=True)
 
         subprocess.call(f"mv {dir_name} ./kernel", shell=True)
 
@@ -69,7 +69,7 @@ def download_kernel(args):
 #and import everything you have to import to use those command
 def kernel(config):
     current = os.getcwd()
-    print(current)
+    print(f"{current}")
     os.chdir("../kernelci-core")
     print(os.getcwd()+"\n")
     subprocess.run(args="python3 kci_build build_kernel --arch=x86_64 --build-env=gcc-8 --kdir="+current+"/kernel/ --verbose", shell=True, check=True)
@@ -82,16 +82,17 @@ if __name__ == "__main__":
     
     if kv is not None:
         download_kernel(kv)
+
+        current = os.getcwd()
+        os.chdir("kernel")
 #marker 2 done (telecharger et decompresser mon archive kernel dans mon path courant)
     #clean the build folder
     if path.exists("build") :
         subprocess.call("rm -r -f build",shell=True)
     subprocess.call('mkdir build', shell=True)
 
-    if config == 'randconfig':
-        current = os.getcwd()
-        os.chdir("kernel")
-        subprocess.call('make randconfig', shell=True)
+    if config == 'tinyconfig':
+        subprocess.call('make tinyconfig', shell=True)
         subprocess.call('mv .config ./build', shell=True)
         config = ".config"
         os.chdir(current)
@@ -106,7 +107,3 @@ if __name__ == "__main__":
 #marker 5 done(on lance le build du kernel)
 
 #reste a prendre les outputs
-
-#supprimer les fichiers ajoutés
-#    subprocess.call('rm -r -f ./kernel', shell=True)
-#    subprocess.call('rm -f -r ./build', shell=True)
