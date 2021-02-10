@@ -94,7 +94,7 @@ if __name__ == "__main__":
         current = os.getcwd()
 
     # Si config est precisee creer le .config et le mettre dans build
-    if config == 'tinyconfig' or config == 'randconfig':
+    if config == 'tinyconfig' or config == 'randconfig' or config == 'defconfig':
         # rentrer dans le dossier kernel
         os.chdir("kernel")
         print("Trying to make" + config + " into " + os.getcwd())
