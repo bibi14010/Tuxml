@@ -99,7 +99,7 @@ if __name__ == "__main__":
         os.chdir("kernel")
         print("Trying to make" + config + " into " + os.getcwd())
         # creer la config
-        subprocess.call('KCONFIG_ALLCONFIG=x86_64.config make ' + config, shell=True)
+        subprocess.call('KCONFIG_ALLCONFIG=../x86_64.config make ' + config, shell=True)
         # subprocess.call('make oldconfig ', shell=True)
         # deplacer la config pour le build de kci
         subprocess.call("mkdir build", shell=True)
