@@ -39,7 +39,7 @@ def parser():
 
 
 def download_kernel(args):
-    url = "https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-" + args + ".tar.xz"
+    url = "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-" + args + ".tar.xz"
     downloaded_filename = args + '.tar.xz'
     if not (path.exists(downloaded_filename)):
         print(f"{downloaded_filename} is downloading.\n")
@@ -104,6 +104,7 @@ if __name__ == "__main__":
         # deplacer la config pour le build de kci
         subprocess.call("mkdir build", shell=True)
         subprocess.call('mv .config ./build', shell=True)
+        subprocess.call('make mrproper', shell=True)
         # retour dans le reperoir du script
         os.chdir("..")
 
