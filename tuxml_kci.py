@@ -58,6 +58,7 @@ def download_kernel(args):
     else:
         print(f"{dir_name} has been already extracted.")
 
+    # TODO: use variable for "kernel" folder name
     # clean folder and sources
     if (path.exists("kernel")):
         subprocess.call("rm -r -f ./kernel", shell=True)
@@ -93,25 +94,27 @@ if __name__ == "__main__":
         download_kernel(kv)
         current = os.getcwd()
 
-    # Si config est precisee creer le .config et le mettre dans build
+    # default configurations (we preset some options for randconfig and tinyconfig, since the architecture should be consistent (TODO: improvements of architectures support))
     if config == 'tinyconfig' or config == 'randconfig' or config == 'defconfig':
-        # rentrer dans le dossier kernel
+        # enter in the kernel folder (TODO: use variable)
         os.chdir("kernel")
         print("Trying to make" + config + " into " + os.getcwd())
-        # creer la config
+        # create the config using facilities
         subprocess.call('KCONFIG_ALLCONFIG=../x86_64.config make ' + config, shell=True)
-        # subprocess.call('make oldconfig ', shell=True)
-        # deplacer la config pour le build de kci
+        # move .config into build directory
         subprocess.call("mkdir build", shell=True)
         subprocess.call('mv .config ./build', shell=True)
-        subprocess.call('make mrproper', shell=True)
-        # retour dans le reperoir du script
+        # this step is actually important: it cleans all compiled files due to make rand|tiny|def config
+        # otherwise kernel sources are not clean and kci complains 
+        subprocess.call('make mrproper', shell=True) 
+        # back
         os.chdir("..")
 
     # si path de config donne la mettre dans build
     else :
        path_config = os.getcwd()
-       subprocess.call("mv "+path_config+"/"+config +" ./kernel/build", shell=True)
+       subprocess.call("mkdir ./kernel/build", shell=True)
+       subprocess.call("mv "+ path_config + "/" + config + " ./kernel/build/.config", shell=True)
 
     kernel(os.getcwd() + "/kernel/build/")
 
