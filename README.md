@@ -42,7 +42,9 @@ and you should get something like:
 }
 ```
 
-the solution can work with `randconfig` and `tinyconfig` (note: we force x86_64 architecture right now). 
+## Usages
+
+The solution can work with `defconfig` `randconfig` and `tinyconfig` (note: we force x86_64 architecture right now). 
 It's also possible to use an existing `.config` eg:
 `wget https://tuxmlweb.istic.univ-rennes1.fr/data/configuration/193488/config; mv config TuxML-193488.config; python3 tuxml_kci.py --kernel_version 5.8 --config TuxML-193488.config` 
 
