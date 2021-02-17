@@ -5,6 +5,7 @@ import subprocess
 import tarfile
 import urllib.request
 
+from pygments.lexers import make
 import os
 from os import path
 
@@ -115,9 +116,9 @@ if __name__ == "__main__":
        subprocess.call("mv "+ path_config + "/" + config + " ./kernel/build/.config", shell=True)
 
     kernel(os.getcwd() + "/kernel/build/")
-
-    f=open("/home/simon/tuxml-kci/kernel/build/bmeta.json", "r");
-    print(f.read());
+    os.chdir("..")
+    f=open(os.getcwd() + "/tuxml-kci/kernel/build/bmeta.json", "r");
+    print(f.read())
 
 # marker 5 done(on lance le build du kernel)
 
