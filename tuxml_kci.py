@@ -79,7 +79,7 @@ def kernel(config):
     # ./kci_build build_kernel --defconfig=/home/martin/Desktop/tuxml-kci/kernel/build/ --arch=x86_64 --build-env=gcc-8 --kdir=/home/martin/Desktop/tuxml-kci/kernel/ --verbose
     subprocess.run(
         args="python3 kci_build build_kernel --build-env=gcc-8 --arch=x86_64 --kdir=" + current + "/kernel/ --verbose ",
-        shell=True, check=True, capture_output=True)
+        shell=True, check=True)
 
 if __name__ == "__main__":
     # Get line parameters
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     if config == 'tinyconfig' or config == 'randconfig' or config == 'defconfig':
         # enter in the kernel folder (TODO: use variable)
         os.chdir("kernel")
-        print("Trying to make" + config + " into " + os.getcwd())
+        print("Trying to make " + config + " into " + os.getcwd())
         # create the config using facilities
         subprocess.call('KCONFIG_ALLCONFIG=../x86_64.config make ' + config, shell=True)
         # move .config into build directory
@@ -116,6 +116,9 @@ if __name__ == "__main__":
        subprocess.call("mv "+ path_config + "/" + config + " ./kernel/build/.config", shell=True)
 
     kernel(os.getcwd() + "/kernel/build/")
+
+    f=open("/home/simon/tuxml-kci/kernel/build/bmeta.json", "r");
+    print(f.read());
 
 # marker 5 done(on lance le build du kernel)
 
