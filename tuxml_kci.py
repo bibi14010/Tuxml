@@ -5,7 +5,6 @@ import subprocess
 import tarfile
 import urllib.request
 
-from pygments.lexers import make
 import os
 from os import path
 
