@@ -39,7 +39,15 @@ def parser():
 
 
 def download_kernel(args):
-    url = "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-" + args + ".tar.xz"
+    
+    #for kernel versions 5.x.x
+    if args.startswith("5.") :
+        url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-" + args + ".tar.xz"
+    #for kernel version 4.x.x
+    else : 
+        url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/linux-" + args + ".tar.xz"
+
+    
     downloaded_filename = args + '.tar.xz'
     if not (path.exists(downloaded_filename)):
         print(f"{downloaded_filename} is downloading.\n")
@@ -117,7 +125,7 @@ if __name__ == "__main__":
 
     kernel(os.getcwd() + "/kernel/build/")
     os.chdir("..")
-    f=open(os.getcwd() + "/tuxml-kci/kernel/build/bmeta.json", "r");
+    f=open(os.getcwd() + "/tuxml-kci/kernel/build/bmeta.json", "r")
     print(f.read())
 
 # marker 5 done(on lance le build du kernel)
