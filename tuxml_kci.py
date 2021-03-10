@@ -96,6 +96,7 @@ def download_kernel(args):
     subprocess.call("make distclean", shell=True)
     os.chdir("..")
 
+
 # The function that will build the kernel with the .config or a randconfig
 # suppos that you  have already do the step 0, step1 and step2 of the how to build kernel with kernel_ci
 # and import everything you have to import to use those command
@@ -117,11 +118,10 @@ def kernel(config, arch=None):
     
     #first version, need to change the tree-url and branch value I guess
     subprocess.run(
-                args="python3 kci_build install_kernel --tree-name="+ kv + " --tree-url=" + git_url + " --branch=master" + "/kernel/install --kdir=linux", 
+                args="python3 kci_build install_kernel --tree-name="+ kv + " --tree-url=" + git_url + " --branch=master" + "/kernel/install --kdir=" + current, 
                 shell=True, check=True
     ) 
-    
-        
+       
 
 if __name__ == "__main__":
     # Get line parameters
