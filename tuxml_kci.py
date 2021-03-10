@@ -10,6 +10,12 @@ from os import path
 
 
 ###########################################################
+
+krnl = "kernel"
+kerBuild = "/kernel/build"
+kv="";
+git_url="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tag/?h=v";
+
 def parser():
     parser = argparse.ArgumentParser()
 
@@ -47,16 +53,18 @@ def parser():
 
 def download_kernel(args):
     
+    argxz = args[:-1]+"y.tar.xz" #it take the stable versions
+    base_url = "https://mirrors.edge.kernel.org/pub/linux/kernel"
+    
     #for kernel versions 5.x.x
     if args.startswith("5.") :
-        url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-" + args + ".tar.xz"
+        url = base_url + "/v5.x/linux-" + argxz 
 
     #for kernel version 4.x.x
     else : 
-        url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/linux-" + args + ".tar.xz"
-
+        url = base_url + "/v4.x/linux-" + argxz 
     
-    downloaded_filename = args + '.tar.xz'
+    downloaded_filename = argxz 
     if not (path.exists(downloaded_filename)):
         print(f"{downloaded_filename} is downloading.\n")
         urllib.request.urlretrieve(url, downloaded_filename)
@@ -76,10 +84,10 @@ def download_kernel(args):
 
     # TODO: use variable for "kernel" folder name
     # clean folder and sources
-    if (path.exists("kernel")):
-        subprocess.call("rm -r -f ./kernel", shell=True)
-    subprocess.call(f"mv {dir_name} ./kernel", shell=True)
-    os.chdir("kernel")
+    if (path.exists(krnl)):
+        subprocess.call("rm -r -f ./" + krnl, shell=True)
+    subprocess.call(f"mv {dir_name} ./" + krnl, shell=True)
+    os.chdir(krnl)
     print("Cleaning the source code . . .")
     subprocess.call("make distclean", shell=True)
     os.chdir("..")
@@ -103,8 +111,9 @@ def kernel(config, arch=None):
                 "/kernel/ --verbose ", shell=True, check=True
         )
     
+    #first version, need to change the tree-url and branch value I guess
     subprocess.run(
-                args="python3 kci_build install_kernel --build-config="+ current + "/kernel/install --kdir=linux", 
+                args="python3 kci_build install_kernel --tree-name="+ kv + "--tree-url=" + git_url + "--branch=" + kv + "/kernel/install --kdir=linux", 
                 shell=True, check=True
     ) 
     
@@ -117,22 +126,23 @@ if __name__ == "__main__":
     kv = args.kernel_version
     c = args.compiler
     arch=args.arch
-
+    
+    git_url = git_url + kv    
+    
     # Get and unzip kernel archive
     if kv is not None:
         download_kernel(kv)
         current = os.getcwd()
 
-    # default configurations (we preset some options for randconfig and tinyconfig, since the architecture should be consistent (TODO: improvements of architectures support))
+    # default configurations (we preset some options for randconfig and tinyconfig, since the architecture should be consistent)
     if config == 'tinyconfig' or config == 'randconfig' or config == 'defconfig':
-        # enter in the kernel folder (TODO: use variable)
-        os.chdir("kernel")
+        # enter in the kernel folder
+        os.chdir(krnl)
         print("Trying to make " + config + " into " + os.getcwd())
         # create the config using facilities
         
-        
         if arch =="32":
-                    subprocess.call('KCONFIG_ALLCONFIG=../x86_32.config make ' + config, shell=True)
+            subprocess.call('KCONFIG_ALLCONFIG=../x86_32.config make ' + config, shell=True)
         
         else:
             subprocess.call('KCONFIG_ALLCONFIG=../x86_64.config make ' + config, shell=True)
@@ -149,15 +159,14 @@ if __name__ == "__main__":
     #.config given, moove it into the /kernel/build/ directory
     else :
        path_config = os.getcwd()
-       subprocess.call("mkdir ./kernel/build", shell=True)
-       subprocess.call("mv "+ path_config + "/" + config + " ./kernel/build/.config", shell=True)
-    
-    subprocess.call("mkdir ./kernel/install", shell=True)
-    kernel(os.getcwd() + "/kernel/build/", arch)
+       subprocess.call("mkdir ." + kerBuild, shell=True)
+       subprocess.call("mv "+ path_config + "/" + config + " ." + kerBuild + "/.config", shell=True)
+
+    kernel(os.getcwd() + kerBuild +"/", arch)
     os.chdir("..")
 
     #print the bmeta.json
-    f=open(os.getcwd() + "/tuxml-kci/kernel/build/bmeta.json", "r")
+    f=open(os.getcwd() + "/tuxml-kci/" +  kerBuild +"/bmeta.json", "r")
     print(f.read())
 
 # marker 5 done(on lance le build du kernel)
