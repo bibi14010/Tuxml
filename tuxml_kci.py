@@ -70,14 +70,13 @@ def download_kernel(args):
     dir_name = "linux-" + args
     if not (path.exists(dir_name)):
         fname = args + '.tar.xz'
-        tar = tarfile.open(fname, "r:xz")
+        tar = tarfile.open("/shared_volume/"+fname, "r:xz")
         print(f"Extracting {fname}.")
         tar.extractall()
         tar.close()
         print(f"{fname} has been extracted into {dir_name}")
     else:
         print(f"{dir_name} has been already extracted.")
-
     # TODO: use variable for "kernel" folder name
     # clean folder and sources
     if (path.exists("kernel")):
