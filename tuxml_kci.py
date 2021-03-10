@@ -53,22 +53,22 @@ def parser():
 
 def download_kernel(args):
     
-    argxz = args[:-1]+"y.tar.xz" #it take the stable versions
+    argxz = args + ".tar.xz" #it take the stable versions
     base_url = "https://mirrors.edge.kernel.org/pub/linux/kernel"
     
     #for kernel versions 5.x.x
     if args.startswith("5.") :
         url = base_url + "/v5.x/linux-" + argxz 
-
     #for kernel version 4.x.x
     else : 
         url = base_url + "/v4.x/linux-" + argxz 
 
-
-    downloaded_filename = "/shared_volume/kernel_versions/" + argxz
+   
     # create dir [kernel_versions] into shared volume if not exist
     if not (path.exists("/shared_volume/kernel_versions")):
         os.mkdir("/shared_volume/kernel_versions")
+
+    downloaded_filename = "/shared_volume/kernel_versions/" + argxz
 
     # if exist check, if downloaded_filename exists unpack else download
     if not (path.exists(downloaded_filename)):
@@ -118,7 +118,7 @@ def kernel(config, arch=None):
     
     #first version, need to change the tree-url and branch value I guess
     subprocess.run(
-                args="python3 kci_build install_kernel --tree-name="+ kv + "--tree-url=" + git_url + "--branch=" + kv + "/kernel/install --kdir=linux", 
+                args="python3 kci_build install_kernel --tree-name="+ kv + "--tree-url=" + git_url + "--branch=master" + "/kernel/install --kdir=linux", 
                 shell=True, check=True
     ) 
     
