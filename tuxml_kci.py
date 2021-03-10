@@ -40,14 +40,18 @@ def parser():
 def download_kernel(args):
     
     #for kernel versions 5.x.x
-    if args.startswith("5.") :
+    if args.startswith("5."):
         url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-" + args + ".tar.xz"
     #for kernel version 4.x.x
     else : 
         url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/linux-" + args + ".tar.xz"
 
-    
-    downloaded_filename = args + '.tar.xz'
+    downloaded_filename = "/shared_volume/kernel_versions/" + args + '.tar.xz'
+    # create dir [kernel_versions] into shared volume if not exist
+    if not (path.exists("/shared_volume/kernel_versions")):
+        os.mkdir("/shared_volume/kernel_versions")
+
+    # if exist check, if downloaded_filename exists unpack else download
     if not (path.exists(downloaded_filename)):
         print(f"{downloaded_filename} is downloading.\n")
         urllib.request.urlretrieve(url, downloaded_filename)
