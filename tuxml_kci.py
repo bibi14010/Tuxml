@@ -70,7 +70,7 @@ def download_kernel(args):
     dir_name = "linux-" + args
     if not (path.exists(dir_name)):
         fname = args + '.tar.xz'
-        tar = tarfile.open("/shared_volume/"+fname, "r:xz")
+        tar = tarfile.open("/shared_volume/kernel_versions/"+fname, "r:xz")
         print(f"Extracting {fname}.")
         tar.extractall()
         tar.close()
