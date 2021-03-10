@@ -63,12 +63,11 @@ def download_kernel(args):
     else : 
         url = base_url + "/v4.x/linux-" + argxz 
 
-   
+    downloaded_filename = "/shared_volume/kernel_versions/" + argxz
+
     # create dir [kernel_versions] into shared volume if not exist
     if not (path.exists("/shared_volume/kernel_versions")):
-        os.mkdir("/shared_volume/kernel_versions")
-
-    downloaded_filename = "/shared_volume/kernel_versions/" + argxz
+        os.mkdir("/shared_volume/kernel_versions")    
 
     # if exist check, if downloaded_filename exists unpack else download
     if not (path.exists(downloaded_filename)):
@@ -118,7 +117,7 @@ def kernel(config, arch=None):
     
     #first version, need to change the tree-url and branch value I guess
     subprocess.run(
-                args="python3 kci_build install_kernel --tree-name="+ kv + "--tree-url=" + git_url + "--branch=master" + "/kernel/install --kdir=linux", 
+                args="python3 kci_build install_kernel --tree-name="+ kv + " --tree-url=" + git_url + " --branch=master" + "/kernel/install --kdir=linux", 
                 shell=True, check=True
     ) 
     
