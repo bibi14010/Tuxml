@@ -8,7 +8,7 @@ A bridge with KernelCI to take in account: any configuration file, any kernel ve
 git clone https://github.com/kernelci/kernelci-core
 git clone https://github.com/TuxML/tuxml-kci/
 cd tuxml-kci
-python3 tuxml_kci.py --kernel_version 5.9 --config defconfig
+python3 tuxml_kci.py --kernel_version 5.9 --config defconfig 
 cat kernel/build/bmeta.json 
 ```
 
@@ -44,7 +44,7 @@ and you should get something like:
 
 ## Usages
 
-The solution can work with `defconfig` `randconfig` and `tinyconfig` (note: we force x86_64 architecture right now). 
+The solution can work with `defconfig` `randconfig` and `tinyconfig`. 
 It's also possible to use an existing `.config` eg:
 `wget https://tuxmlweb.istic.univ-rennes1.fr/data/configuration/193488/config; mv config TuxML-193488.config; python3 tuxml_kci.py --kernel_version 5.8 --config TuxML-193488.config` 
 
@@ -79,3 +79,9 @@ cat kernel/build/bmeta.json
 }
 ``` 
 indeed, 33.5Mb as in `https://tuxmlweb.istic.univ-rennes1.fr/data/configuration/193488/`
+
+## Update
+
+ * Now the script can run an architecture of x86_32 by using --arch=32 as a parameter. (note: as default the script will use the x86_64 arch.) 
+   
+ * The script allow the 4.x and 5.x versions of linux.

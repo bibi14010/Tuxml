@@ -33,6 +33,14 @@ def parser():
         default="gcc6",
         nargs='?'
     )
+
+    parser.add_argument(
+        "--arch",
+        help="The architecture of the kernel, could be x86_64 or x86_32. Precise only with 32 or 64.",
+        default="64",
+        nargs="?"
+    )
+
     # marker 1 done (squelette du script avec argparse )
     return parser.parse_args()
 
@@ -42,6 +50,7 @@ def download_kernel(args):
     #for kernel versions 5.x.x
     if args.startswith("5.") :
         url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-" + args + ".tar.xz"
+
     #for kernel version 4.x.x
     else : 
         url = "https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/linux-" + args + ".tar.xz"
@@ -78,15 +87,28 @@ def download_kernel(args):
 # The function that will build the kernel with the .config or a randconfig
 # suppos that you  have already do the step 0, step1 and step2 of the how to build kernel with kernel_ci
 # and import everything you have to import to use those command
-def kernel(config):
+def kernel(config, arch=None):
     current = os.getcwd()
     print(f"{current}")
     os.chdir("../kernelci-core")
     print(os.getcwd() + "\n")
-    # ./kci_build build_kernel --defconfig=/home/martin/Desktop/tuxml-kci/kernel/build/ --arch=x86_64 --build-env=gcc-8 --kdir=/home/martin/Desktop/tuxml-kci/kernel/ --verbose
+    
+    if arch=="32":
+             subprocess.run(
+                args="python3 kci_build build_kernel --build-env=gcc-8 --arch=i386 --kdir=" + current + 
+                "/kernel/ --verbose ", shell=True, check=True)
+    else :
+        subprocess.run(
+                args="python3 kci_build build_kernel --build-env=gcc-8 --arch=x86_64 --kdir=" + current + 
+                "/kernel/ --verbose ", shell=True, check=True
+        )
+    
     subprocess.run(
-        args="python3 kci_build build_kernel --build-env=gcc-8 --arch=x86_64 --kdir=" + current + "/kernel/ --verbose ",
-        shell=True, check=True)
+                args="python3 kci_build install_kernel --build-config="+ current + "/kernel/install --kdir=linux", 
+                shell=True, check=True
+    ) 
+    
+        
 
 if __name__ == "__main__":
     # Get line parameters
@@ -94,6 +116,7 @@ if __name__ == "__main__":
     config = args.config
     kv = args.kernel_version
     c = args.compiler
+    arch=args.arch
 
     # Get and unzip kernel archive
     if kv is not None:
@@ -106,7 +129,14 @@ if __name__ == "__main__":
         os.chdir("kernel")
         print("Trying to make " + config + " into " + os.getcwd())
         # create the config using facilities
-        subprocess.call('KCONFIG_ALLCONFIG=../x86_64.config make ' + config, shell=True)
+        
+        
+        if arch =="32":
+                    subprocess.call('KCONFIG_ALLCONFIG=../x86_32.config make ' + config, shell=True)
+        
+        else:
+            subprocess.call('KCONFIG_ALLCONFIG=../x86_64.config make ' + config, shell=True)
+
         # move .config into build directory
         subprocess.call("mkdir build", shell=True)
         subprocess.call('mv .config ./build', shell=True)
@@ -116,14 +146,17 @@ if __name__ == "__main__":
         # back
         os.chdir("..")
 
-    # si path de config donne la mettre dans build
+    #.config given, moove it into the /kernel/build/ directory
     else :
        path_config = os.getcwd()
        subprocess.call("mkdir ./kernel/build", shell=True)
        subprocess.call("mv "+ path_config + "/" + config + " ./kernel/build/.config", shell=True)
-
-    kernel(os.getcwd() + "/kernel/build/")
+    
+    subprocess.call("mkdir ./kernel/install", shell=True)
+    kernel(os.getcwd() + "/kernel/build/", arch)
     os.chdir("..")
+
+    #print the bmeta.json
     f=open(os.getcwd() + "/tuxml-kci/kernel/build/bmeta.json", "r")
     print(f.read())
 
