@@ -118,7 +118,7 @@ def kernel(config, arch=None):
     
     #first version, need to change the tree-url and branch value I guess
     subprocess.run(
-                args="python3 kci_build install_kernel --tree-name="+ kv + " --tree-url=" + git_url + " --branch=master" + "/kernel/install --kdir=" + current, 
+                args="python3 kci_build install_kernel --tree-name="+ kv + " --tree-url=" + git_url + " --branch=master --kdir=" + current, 
                 shell=True, check=True
     ) 
        
