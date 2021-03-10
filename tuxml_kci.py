@@ -62,12 +62,14 @@ def download_kernel(args):
     #for kernel version 4.x.x
     else : 
         url = base_url + "/v4.x/linux-" + argxz 
+    
+    downloaded_filename = "./shared_volume/kernel_versions/" + argxz
 
-    downloaded_filename = "/shared_volume/kernel_versions/" + argxz
+    #downloaded_filename = argxz
 
-    # create dir [kernel_versions] into shared volume if not exist
+     #create dir [kernel_versions] into shared volume if not exist
     if not (path.exists("/shared_volume/kernel_versions")):
-        os.mkdir("/shared_volume/kernel_versions")    
+        subprocess.call("mkdir ./shared_volume/kernel_versions", shell=True)    
 
     # if exist check, if downloaded_filename exists unpack else download
     if not (path.exists(downloaded_filename)):
@@ -79,7 +81,7 @@ def download_kernel(args):
     dir_name = "linux-" + args
     if not (path.exists(dir_name)):
         fname = args + '.tar.xz'
-        tar = tarfile.open("/shared_volume/kernel_versions/"+fname, "r:xz")
+        tar = tarfile.open("./shared_volume/kernel_versions/"+fname, "r:xz")
         print(f"Extracting {fname}.")
         tar.extractall()
         tar.close()
@@ -118,8 +120,8 @@ def kernel(config, arch=None):
     
     #first version, need to change the tree-url and branch value I guess
     subprocess.run(
-                args="python3 kci_build install_kernel --tree-name="+ kv + " --tree-url=" + git_url + " --branch=master --kdir=" + current, 
-                shell=True, check=True
+                args="python3 kci_build install_kernel --tree-name=%s --tree-url=%s --branch=master --kdir=%s/%s"  
+                %(kv, git_url, current, krnl), shell=True, check=True
     ) 
        
 
@@ -168,9 +170,10 @@ if __name__ == "__main__":
 
     kernel(os.getcwd() + kerBuild +"/", arch)
     os.chdir("..")
-
+    
+    print(os.getcwd())
     #print the bmeta.json
-    f=open(os.getcwd() + "/tuxml-kci/" +  kerBuild +"/bmeta.json", "r")
+    f=open(os.getcwd() + "/tuxml-kci" +  kerBuild +"/bmeta.json", "r")
     print(f.read())
 
 # marker 5 done(on lance le build du kernel)
