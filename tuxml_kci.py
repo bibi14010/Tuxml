@@ -27,14 +27,16 @@ def argparser():
         help="Use a config that you already have setup with your  .config or randconfig to run with a random"
              "config.",
         default="tinyconfig",
-        nargs='?'
+        nargs='?',
+        required=True
     )
 
     parser.add_argument(
         "-k",
         "--kernel_version",
         help="The kernel version to use",
-        nargs='?'
+        nargs='?',
+        required=True
     )
 
     parser.add_argument(
@@ -42,7 +44,8 @@ def argparser():
         "--build_env",
         help="Specify the version of gcc compiler.",
         default="gcc-8",
-        nargs='?'
+        nargs='?',
+        required=True
     )
 
     parser.add_argument(
@@ -50,8 +53,8 @@ def argparser():
         "--arch",
         help="The architecture of the kernel, could be x86_64 or x86_32. Precise only with 32 or 64.",
         default="x86_64",
-        nargs
-        ="?"
+        nargs="?",
+        required=True
     )
 
     # marker 1 done (squelette du script avec argparse )
