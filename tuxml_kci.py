@@ -2,13 +2,18 @@
 
 import argparse
 import subprocess
+import sys
 import tarfile
 import tempfile
 import urllib.request
 import calendar
 import time
 import os
+import shutil
 
+sys.path.append(os.path.abspath("/kernelci-core"))
+import kernelci.build as kci_build
+import kernelci.config.build as kci_build_config
 kernel_versions_path = "/shared_volume/kernel_versions"
 base_path = "/tuxml-kci"
 
@@ -36,7 +41,7 @@ def argparser():
         "-b",
         "--build_env",
         help="Specify the version of gcc compiler.",
-        default="gcc-86",
+        default="gcc-8",
         nargs='?'
     )
 
@@ -87,11 +92,6 @@ def extract_kernel(kver):
     return extract_dir
 
 
-# Remove sources from the extraction folder
-def clean_sources(x_kdir):
-    os.rmdir("{kdir}".format(kdir=x_kdir))
-
-
 # The function that will build the kernel with the .config or a randconfig
 # suppose that you have already do the step 0, step1 and step2 of the how to build kernel with kernel_ci
 # and import everything you have to import to use those command
@@ -101,12 +101,7 @@ def build_kernel(b_env, kver, arch, kdir):
     # get current timestamp and create directory for the output metadata
     current_date = calendar.timegm(time.gmtime())
     output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver})".format(b_env=b_env, arch=arch, timestamp=current_date, kver=kver)
-    os.mkdir(output_folder)
-
-    command = "python3 kci_build build_kernel --build-env=gcc-8 --arch={arch} --kdir={kdir} --output={of} --verbose".format(
-        arch=arch, kdir=kdir, of=output_folder)
-
-    subprocess.run(command, shell=True)
+    kci_build.build_kernel(build_env=kci_build_config[b_env], kdir=kdir, arch=arch, verbose=True,output_folder=output_folder)
 
     # command = "python3 kci_build install_kernel --tree-name=%s --tree-url=%s --branch=master --kdir=/shared_volume/kernel_versions/%s" % (kver, git_url, current, krnl)
     # # first version, need to change the tree-url and branch value I guess
@@ -125,4 +120,4 @@ if __name__ == "__main__":
     extraction_path = extract_kernel(kver)
 
     build_kernel(b_env, kver, arch, extraction_path)
-    clean_sources(extraction_path)
+    shutil.rmtree(extraction_path, ignore_errors=True)
