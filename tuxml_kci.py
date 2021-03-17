@@ -117,7 +117,7 @@ def argparser():
     parser.add_argument(
         "-c",
         "--config",
-        help="Use a config that you already have setup with your  .config or randconfig to run with a random"
+        help="Use a config that you already have setup with your .config or randconfig to run with a random"
              "config.",
         default="tinyconfig",
         nargs='?',
@@ -665,4 +665,4 @@ if __name__ == "__main__":
     build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
     install_kernel(kdir=extraction_path, output_path=output_folder, install_path=output_folder)
 
-    shutil.rmtree(extraction_path)
+    # shutil.rmtree(extraction_path)
