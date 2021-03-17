@@ -13,12 +13,24 @@ import os
 import shutil
 import stat
 import platform
+import fnmatch
 
-import kernelci
 import elftools.elf.constants as elfconst
 import elftools.elf.elffile as elffile
 import io
 
+
+# Hard-coded binary kernel image names for each CPU architecture
+KERNEL_IMAGE_NAMES = {
+    'arm': ['zImage', 'xipImage'],
+    'arm64': ['Image'],
+    'arc': ['uImage'],
+    'i386': ['bzImage'],
+    'mips': ['uImage.gz', 'vmlinux.gz.itb'],
+    'riscv': ['Image', 'Image.gz'],
+    'x86_64': ['bzImage'],
+    'x86': ['bzImage'],
+}
 
 # Default section names and their build document keys to look in the ELF file.
 # These are supposed to always be available.
@@ -488,6 +500,153 @@ def build_kernel(b_env, kdir, arch, defconfig=None, jopt=None,
 
     return result
 
+def install_kernel(kdir, output_path=None, install_path=None, mod_path=None):
+    """Install the kernel binaries in a directory for a given built revision
+
+    Installing the kernel binaries into a new directory consists of creating a
+    "bmeta.json" file with all the meta-data for the kernel build, copying the
+    System.map file, the kernel .config, the build log, the frag.config file,
+    all the dtbs and a tarball with all the modules.  This is an intermediate
+    step between building a kernel and publishing it via the KernelCI backend.
+
+    *kdir* is the path to the kernel source directory
+    *tree_name* is the name of the tree from a build configuration
+    *git_branch* is the name of the git branch in the tree
+    *git_commit* is the git commit SHA
+    *describe* is the "git describe" for the commit
+    *describe_v* is the verbose "git describe" for the commit
+    *output_path" is the path to the directory where the kernel was built
+    *install_path* is the path where to install the kernel
+    *mod_path* is the path where the modules were installed
+
+    The returned value is True if it was done successfully or False if an error
+    occurred.
+    """
+    if not install_path:
+        install_path = os.path.join(kdir, '_install_')
+    if not output_path:
+        output_path = os.path.join(kdir, 'build')
+    if not mod_path:
+        mod_path = os.path.join(output_path, '_modules_')
+
+    #
+    # if not git_commit:
+    #     git_commit = head_commit(kdir)
+    # if not describe:
+    #     describe = git_describe(tree_name, kdir)
+    # if not describe_v:
+    #     describe_v = git_describe_verbose(kdir)
+
+    if os.path.exists(install_path):
+        shutil.rmtree(install_path)
+    os.makedirs(install_path)
+
+    with open(os.path.join(output_path, 'bmeta.json')) as json_file:
+        bmeta = json.load(json_file)
+
+    system_map = os.path.join(output_path, 'System.map')
+    if os.path.exists(system_map):
+        virt_text = shell_cmd('grep " _text" {}'.format(system_map)).split()[0]
+        text_offset = int(virt_text, 16) & (1 << 30)-1  # phys: cap at 1G
+        shutil.copy(system_map, install_path)
+    else:
+        text_offset = None
+
+    dot_config = os.path.join(output_path, '.config')
+    dot_config_installed = os.path.join(install_path, 'kernel.config')
+    shutil.copy(dot_config, dot_config_installed)
+
+    build_log = os.path.join(output_path, 'build.log')
+    shutil.copy(build_log, install_path)
+
+    frags = os.path.join(output_path, 'frag.config')
+    if os.path.exists(frags):
+        shutil.copy(frags, install_path)
+
+    arch = bmeta['arch']
+    boot_dir = os.path.join(output_path, 'arch', arch, 'boot')
+    kimage_names = KERNEL_IMAGE_NAMES[arch]
+    kimages = []
+    kimage_file = None
+    for root, _, files in os.walk(boot_dir):
+        for name in kimage_names:
+            if name in files:
+                kimages.append(name)
+                image_path = os.path.join(root, name)
+                shutil.copy(image_path, install_path)
+    if kimages:
+        for name in kimage_names:
+            if name in kimages:
+                kimage_file = name
+                break
+    if not kimage_file:
+        print_flush("Warning: no kernel image found")
+
+    dts_dir = os.path.join(boot_dir, 'dts')
+    dtbs = os.path.join(install_path, 'dtbs')
+    dtb_list = []
+    for root, _, files in os.walk(dts_dir):
+        for f in fnmatch.filter(files, '*.dtb'):
+            dtb_path = os.path.join(root, f)
+            dtb_rel = os.path.relpath(dtb_path, dts_dir)
+            dtb_list.append(dtb_rel)
+            dest_path = os.path.join(dtbs, dtb_rel)
+            dest_dir = os.path.dirname(dest_path)
+            if not os.path.exists(dest_dir):
+                os.makedirs(dest_dir)
+            shutil.copy(dtb_path, dest_path)
+    with open(os.path.join(install_path, 'dtbs.json'), 'w') as json_file:
+        json.dump({'dtbs': sorted(dtb_list)}, json_file, indent=4)
+
+    modules_tarball = None
+    if os.path.exists(mod_path):
+        modules_tarball = 'modules.tar.xz'
+        modules_tarball_path = os.path.join(install_path, modules_tarball)
+        shell_cmd("tar -C{path} -cJf {tarball} .".format(
+            path=mod_path, tarball=modules_tarball_path))
+
+    # 'make gen_tar' creates this tarball path
+    kselftest_tarball = 'kselftest-packages/kselftest.tar.xz'
+    kselftest_tarball_path = os.path.join(output_path, '_kselftest_',
+                                          kselftest_tarball)
+    if os.path.exists(kselftest_tarball_path):
+        kselftest_tarball = os.path.basename(kselftest_tarball_path)
+        shutil.copy(kselftest_tarball_path,
+                    os.path.join(install_path, kselftest_tarball))
+    else:
+        kselftest_tarball = kselftest_tarball_path = None
+
+    build_env = bmeta['build_environment']
+    defconfig_full = bmeta['defconfig_full']
+    # if not publish_path:
+    #     publish_path = '/'.join(item.replace('/', '-') for item in [
+    #         tree_name, git_branch, describe, arch, defconfig_full, build_env,
+    #     ])
+
+    bmeta.update({
+        'kconfig_fragments': 'frag.config' if os.path.exists(frags) else '',
+        'kernel_image': kimage_file,
+        'kernel_config': os.path.basename(dot_config_installed),
+        'system_map': 'System.map' if os.path.exists(system_map) else None,
+        'text_offset': '0x{:08x}'.format(text_offset) if text_offset else None,
+        'dtb_dir': 'dtbs' if os.path.exists(dtbs) else None,
+        'modules': modules_tarball,
+        'job': '',
+        'git_url': '',
+        'git_branch': '',
+        'git_describe': '', #TODO fix this later
+        'git_describe_v': '',
+        'git_commit': '',
+        'file_server_resource': '',
+        'kselftests': kselftest_tarball,
+    })
+
+    with open(os.path.join(install_path, 'bmeta.json'), 'w') as json_file:
+        json.dump(bmeta, json_file, indent=4, sort_keys=True)
+
+    return True
+
+
 if __name__ == "__main__":
     # Get line parameters
     args = argparser()
@@ -501,4 +660,9 @@ if __name__ == "__main__":
 
     build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig=config)
 
+    current_date = calendar.timegm(time.gmtime())
+    output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver})".format(b_env=b_env, arch=arch, timestamp=current_date, kver=kver)
+
+    install_kernel(kdir=extraction_path, output_path=output_folder)
+    
     # shutil.rmtree(extraction_path)
