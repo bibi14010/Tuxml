@@ -266,7 +266,7 @@ def _kernel_config_enabled(dot_config, name):
     return shell_cmd('grep -cq CONFIG_{}=y {}'.format(name, dot_config), True)
 
 def build_kernel(b_env, kdir, arch, defconfig=None, jopt=None,
-                 verbose=False, output_path=None, mod_path=None):
+                 verbose=True, output_path=None, mod_path=None):
     """Build a linux kernel
 
     *build_env* is a BuildEnvironment object
@@ -426,5 +426,5 @@ if __name__ == "__main__":
     download_kernel(kver)
     extraction_path = extract_kernel(kver)
 
-    build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig=config)
+    build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig='defconfig')
     shutil.rmtree(extraction_path)
