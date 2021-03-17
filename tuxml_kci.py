@@ -426,5 +426,5 @@ if __name__ == "__main__":
     download_kernel(kver)
     extraction_path = extract_kernel(kver)
 
-    build_kernel(b_env=b_env, arch=arch, kdir=extraction_path)
+    build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig=config)
     shutil.rmtree(extraction_path)
