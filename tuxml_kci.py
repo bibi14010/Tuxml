@@ -663,6 +663,6 @@ if __name__ == "__main__":
     output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver}".format(b_env=b_env, arch=arch, timestamp=current_date, kver=kver)
 
     build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
-    install_kernel(kdir=extraction_path, output_path=output_folder)
+    install_kernel(kdir=extraction_path, output_path=output_folder, install_path=output_folder)
 
-    # shutil.rmtree(extraction_path)
+    shutil.rmtree(extraction_path)
