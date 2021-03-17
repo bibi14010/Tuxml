@@ -104,7 +104,7 @@ def build_kernel(b_env, kver, arch, kdir):
     # get current timestamp and create directory for the output metadata
     current_date = calendar.timegm(time.gmtime())
     output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver})".format(b_env=b_env, arch=arch, timestamp=current_date, kver=kver)
-    kci_build.build_kernel(build_env=kci_build_config[b_env], kdir=kdir, arch=arch, verbose=True, output_path=output_folder)
+    kci_build.build_kernel(build_env={'gcc', '8', 'gcc-8'}, kdir=kdir, arch=arch, verbose=True)
 
     # command = "python3 kci_build install_kernel --tree-name=%s --tree-url=%s --branch=master --kdir=/shared_volume/kernel_versions/%s" % (kver, git_url, current, krnl)
     # # first version, need to change the tree-url and branch value I guess
