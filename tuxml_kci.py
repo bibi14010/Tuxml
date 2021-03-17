@@ -103,6 +103,7 @@ def extract_kernel(kver):
         tar.extractall(extract_dir)
         tar.close()
         print(f"{filename} has been extracted into {extract_dir}/linux-{kver}")
+    extract_dir = f"{extract_dir}/linux-{kver}"
     return extract_dir
 
 
@@ -333,6 +334,8 @@ def build_kernel(b_env, kdir, arch, defconfig=None, jopt=None,
         )
         result = _run_make(jopt=jopt, target=target, **kwargs)
     mods = _kernel_config_enabled(dot_config, 'MODULES')
+
+
     if result and mods:
         result = _run_make(jopt=jopt, target='modules', **kwargs)
     if result and _kernel_config_enabled(dot_config, 'OF_FLATTREE'):
