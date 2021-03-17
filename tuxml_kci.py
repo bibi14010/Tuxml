@@ -176,6 +176,12 @@ if __name__ == "__main__":
     f=open(os.getcwd() + "/tuxml-kci" +  kerBuild +"/bmeta.json", "r")
     print(f.read())
 
+    subprocess.call("mkdir ./tuxml-kci/output/%s_output" %kv, shell=True)
+
+    subprocess.call("cp ./tuxml-kci/%s/_install_/bmeta.json ./tuxml-kci/output/%s_output" % (krnl, kv), shell=True) 
+
+    subprocess.call("cp ./tuxml-kci%s/build.log ./tuxml-kci/output/%s_output" % (kerBuild, kv), shell=True)
+
 # marker 5 done(on lance le build du kernel)
 
 # reste a prendre les outputs
