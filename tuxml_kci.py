@@ -536,6 +536,9 @@ def install_kernel(kdir, output_path=None, install_path=None, mod_path=None):
     #     describe = git_describe(tree_name, kdir)
     # if not describe_v:
     #     describe_v = git_describe_verbose(kdir)
+
+    if os.path.exists(install_path):
+        shutil.rmtree(install_path)
     os.makedirs(install_path)
 
     with open(os.path.join(output_path, 'bmeta.json')) as json_file:
@@ -660,6 +663,9 @@ if __name__ == "__main__":
     output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver}".format(b_env=b_env, arch=arch, timestamp=current_date, kver=kver)
 
     build_kernel(b_env=b_env, arch=arch, kdir=extraction_path, defconfig=config, output_path=output_folder)
-    install_kernel(kdir=extraction_path, output_path=output_folder, install_path=output_folder)
+
+    install_path = os.path.join(output_folder, '_install_')
+
+    install_kernel(kdir=extraction_path, output_path=output_folder, install_path=install_path)
 
     shutil.rmtree(extraction_path)
