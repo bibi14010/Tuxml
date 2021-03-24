@@ -188,22 +188,6 @@ def extract_kernel(kver):
     extract_dir = f"{extract_dir}/linux-{kver}"
     return extract_dir
 
-
-# The function that will build the kernel with the .config or a randconfig
-# suppose that you have already do the step 0, step1 and step2 of the how to build kernel with kernel_ci
-# and import everything you have to import to use those command
-def build_kernel_old(b_env, kver, arch, kdir):
-    os.chdir("/kernelci-core")
-
-    # get current timestamp and create directory for the output metadata
-    current_date = calendar.timegm(time.gmtime())
-    output_folder = "/shared_volume/{b_env}_{arch}/{timestamp}_{kver})".format(b_env=b_env, arch=arch, timestamp=current_date, kver=kver)
-    # kci_build.build_kernel(build_env={'gcc', '', '', '8', 'gcc-8'}, kdir=kdir, arch=arch, verbose=True)
-
-    # command = "python3 kci_build install_kernel --tree-name=%s --tree-url=%s --branch=master --kdir=/shared_volume/kernel_versions/%s" % (kver, git_url, current, krnl)
-    # # first version, need to change the tree-url and branch value I guess
-    # subprocess.run(command, shell=True)
-
 def print_flush(msg):
     print(msg)
     sys.stdout.flush()
