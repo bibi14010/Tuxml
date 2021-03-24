@@ -637,7 +637,7 @@ def install_kernel(kdir, output_path=None, install_path=None, mod_path=None):
         'git_describe': '', #TODO fix this later
         'git_describe_v': '',
         'git_commit': '',
-        'file_server_resource': '',
+        'file_server_resource': output_folder,
         'kselftests': kselftest_tarball,
     })
 
