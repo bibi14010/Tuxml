@@ -7,7 +7,7 @@ import urllib.request
 
 import sys,os
 from os import path
-import kernelci
+from kernelci import build
 
 ###########################################################
 
@@ -109,18 +109,18 @@ def kernel(config, arch=None):
     print(os.getcwd() + "\n")
 
     if arch == "32":
-        kernelci.build.build_kernel("gcc-8", current + "/kernel/", "i386")
+        build.build_kernel("gcc-8", current + "/kernel/", "i386")
         # subprocess.run(
         #   args="python3 kci_build build_kernel --build-env=gcc-8 --arch=i386 --kdir=" + current +
         #   "/kernel/ --verbose ", shell=True, check=True)
     else:
-        kernelci.build.build_kernel("gcc-8", current + "/kernel/", "x86_64")
+        build.build_kernel("gcc-8", current + "/kernel/", "x86_64")
         # subprocess.run(
         #        args="python3 kci_build build_kernel --build-env=gcc-8 --arch=x86_64 --kdir=" + current +
         #        "/kernel/ --verbose ", shell=True, check=True
         # )
 
-    kernelci.build.install_kernel(current + "/" + krnl, kv, git_url, "master")
+    build.install_kernel(current + "/" + krnl, kv, git_url, "master")
     # first version, need to change the tree-url and branch value I guess
     # subprocess.run(
     #            args="python3 kci_build install_kernel --tree-name=%s --tree-url=%s --branch=master --kdir=%s/%s"
