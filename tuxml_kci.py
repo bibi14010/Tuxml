@@ -7,9 +7,9 @@ import urllib.request
 
 import sys,os
 from os import path
+import kernelci
 
 ###########################################################
-sys.path.append(os.path.abspath(os.path.join("..","kernelci-core")))
 
 
 krnl = "kernel"
