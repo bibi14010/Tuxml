@@ -110,22 +110,11 @@ def kernel(config, arch=None):
 
     if arch == "32":
         build.build_kernel("gcc-8", current + "/kernel/", "i386")
-        # subprocess.run(
-        #   args="python3 kci_build build_kernel --build-env=gcc-8 --arch=i386 --kdir=" + current +
-        #   "/kernel/ --verbose ", shell=True, check=True)
     else:
         build.build_kernel("gcc-8", current + "/kernel/", "x86_64")
-        # subprocess.run(
-        #        args="python3 kci_build build_kernel --build-env=gcc-8 --arch=x86_64 --kdir=" + current +
-        #        "/kernel/ --verbose ", shell=True, check=True
-        # )
 
-    build.install_kernel(current + "/" + krnl, kv, git_url, "master")
     # first version, need to change the tree-url and branch value I guess
-    # subprocess.run(
-    #            args="python3 kci_build install_kernel --tree-name=%s --tree-url=%s --branch=master --kdir=%s/%s"
-    #            %(kv, git_url, current, krnl), shell=True, check=True
-    # )
+    build.install_kernel(current + "/" + krnl, kv, git_url, "master")
 
 
 if __name__ == "__main__":
@@ -169,6 +158,7 @@ if __name__ == "__main__":
     else:
         path_config = os.getcwd()
         subprocess.call("mkdir ." + kerBuild, shell=True)
+        print(f"Moving {path_config}/{config} to .{kerBuild}/.config")
         subprocess.call("mv " + path_config + "/" + config + " ." + kerBuild + "/.config", shell=True)
 
     kernel(os.getcwd() + kerBuild + "/", arch)
