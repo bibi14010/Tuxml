@@ -133,8 +133,6 @@ if __name__ == "__main__":
         current = os.getcwd()
 
     # default configurations (we preset some options for randconfig and tinyconfig, since the architecture should be consistent)
-    print(config)
-    exit(0)
     if config == 'tinyconfig' or config == 'randconfig' or config == 'defconfig':
         # enter in the kernel folder
         os.chdir(krnl)
@@ -156,7 +154,7 @@ if __name__ == "__main__":
         # back
         os.chdir("..")
 
-    # .config given, moove it into the /kernel/build/ directory
+    # .config given, move it into the /kernel/build/ directory
     else:
         path_config = os.getcwd()
         subprocess.call("mkdir ." + kerBuild, shell=True)
